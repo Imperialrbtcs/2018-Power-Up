@@ -18,7 +18,8 @@ public class testing {
 /**
  * Why are there no unstaged changes showing up??
  * This is all rather unfortunate
- * so I had to hit save		
+ * so I had to hit save	
+ * hi	
  */
 	}
 
