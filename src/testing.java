@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
+//import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
+/*import com.ctre.phoenix.sensors.PigeonIMU.GeneralStatus;*/
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,25 +21,33 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
+public class Gamepad extends Joystick {
+	public Gamepad(int port) {
+		super(port);
+		// TODO Auto-generated constructor stub
+	}
+	private static final int AXIS_LEFT_X = 1;
+	private static final int AXIS_LEFT_Y = 2;
+	private static final int AXIS_RIGHT_X = 4;
+}
+
 public class Robot extends IterativeRobot {
-	Joystick psController;
-	Talon kFrontLeft, kRearLeft, kFrontRight, kRearRight;
-	MecanumDrive myDrive;
+	private Joystick m_stick = new Joystick(0);
 	
-	double vertVel, horVel, rotation;
+	private MecanumDrive m_robotDrive;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-		psController = new Joystick(0);
-		kFrontLeft = new Talon(0);
-		kRearLeft = new Talon(1);
-		kFrontRight = new Talon(2);
-		kRearRight = new Talon(3);
-		myDrive = new MecanumDrive(kFrontLeft, kRearLeft, kFrontRight, kRearRight);
+		Talon frontLeft = new Talon(1);
+		Talon backLeft = new Talon(2);
+		Talon frontRight = new Talon(3);
+		Talon backRight = new Talon(4);
 		
+		m_robotDrive = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
 	}
 
 	/**
@@ -66,12 +76,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		while (isOperatorControl() && isEnabled()){
-			vertVel = psController.getRawAxis(1);
-			horVel = psController.getRawAxis(0);
-			rotation = psController.getRawAxis(4);
-			myDrive.driveCartesian(vertVel, horVel, rotation, 0.00);
-		}
+		m_robotDrive.driveCartesian(AXIS_LEFT_X, AXIS_LEFT_Y, AXIS_RIGHT_X, 0.0);
 	}
 
 	/**
