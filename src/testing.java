@@ -7,12 +7,17 @@
 
 package org.usfirst.frc.team4286.robot;
 
+//import com.ctre.phoenix.sensors.PigeonIMU;
+
+import edu.wpi.first.wpilibj.CounterBase;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.drive.MecanumDrive;
 //import com.ctre.phoenix.sensors.PigeonIMU.PigeonState;
 /*import com.ctre.phoenix.sensors.PigeonIMU.GeneralStatus;*/
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -21,68 +26,117 @@ import edu.wpi.first.wpilibj.drive.MecanumDrive;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Gamepad extends Joystick {
-	public Gamepad(int port) {
-		super(port);
-		// TODO Auto-generated constructor stub
-	}
-	private static final int AXIS_LEFT_X = 1;
-	private static final int AXIS_LEFT_Y = 2;
-	private static final int AXIS_RIGHT_X = 4;
-}
 
 public class Robot extends IterativeRobot {
-	private Joystick m_stick = new Joystick(0);
+	Joystick joystick = new Joystick(0);
+	Talon frontLeft, backLeft, frontRight, backRight, climbingOne, climbingTwo, lift, grabber;
+	MecanumDrive m_robotDrive;
+	Encoder encoder;
+	final double kUpdatePeriod = 0.005;
+	boolean LBump, RBump, A, B, X, Y;
+	SmartDashboard sd;
+
+	//PigeonIMU pidgey;
 	
-	private MecanumDrive m_robotDrive;
-	
-	/**
-	 * This function is run when the robot is first started up and should be
-	 * used for any initialization code.
-	 */
 	@Override
 	public void robotInit() {
-		Talon frontLeft = new Talon(1);
-		Talon backLeft = new Talon(2);
-		Talon frontRight = new Talon(3);
-		Talon backRight = new Talon(4);
+		
+		frontLeft = new Talon(0);
+		backLeft = new Talon(1);
+		frontRight = new Talon(2);
+		backRight = new Talon(3);
+		encoder = new Encoder(4, 5, false, CounterBase.EncodingType.k4X);
+		climbingOne = new Talon(6);
+		climbingTwo = new Talon(7);
+		lift = new Talon(8);
+		grabber = new Talon(9);
+		
+		sd = new SmartDashboard();
+
+		//Wheels are flipped, invert every wheel
+		frontLeft.setInverted(true);
+		backLeft.setInverted(true);
+		backRight.setInverted(true);
+		frontRight.setInverted(true);
 		
 		m_robotDrive = new MecanumDrive(frontLeft, backLeft, frontRight, backRight);
+		
 	}
 
-	/**
-	 * This function is run once each time the robot enters autonomous mode.
-	 */
 	@Override
 	public void autonomousInit() {
 	}
 
-	/**
-	 * This function is called periodically during autonomous.
-	 */
 	@Override
 	public void autonomousPeriodic() {
 	}
 
-	/**
-	 * This function is called once each time the robot enters teleoperated mode.
-	 */
 	@Override
 	public void teleopInit() {
 	}
 
-	/**
-	 * This function is called periodically during teleoperated mode.
-	 */
+	@SuppressWarnings("static-access")
 	@Override
 	public void teleopPeriodic() {
-		m_robotDrive.driveCartesian(AXIS_LEFT_X, AXIS_LEFT_Y, AXIS_RIGHT_X, 0.0);
+		
+		Double XAxis, YAxis, ZAxis;
+		
+		while(isOperatorControl() && isEnabled()) {
+			
+			sd.putNumber("Uno", 10);
+			
+			XAxis = joystick.getRawAxis(1);
+			YAxis = joystick.getRawAxis(0);
+			ZAxis = joystick.getRawAxis(2);	
+		
+			LBump = joystick.getRawButton(5); //4 count from 0
+			RBump = joystick.getRawButton(6);
+			B = joystick.getRawButton(2);
+			X = joystick.getRawButton(3);
+			A = joystick.getRawButton(1);
+			Y = joystick.getRawButton(4);
+		
+		
+			if (RBump) { climb(.666); }
+			else if (LBump) { climb(-.666); }
+			else { climb(0); }
+		
+			if (B) { grabber(.5); }
+			else if (X) { grabber(-.5); }
+			else { grabber(0); } 
+		
+			if (Y) { lift(.666); }
+			else if (A) { lift(-.666); }
+			else { lift(0); }
+		
+			//driveCartesian: Vector r = <Y, X, Z>: But it drives inverse unless you do <X, Y, Z>
+			drive(XAxis, YAxis, ZAxis);
+		}
 	}
-
-	/**
-	 * This function is called periodically during test mode.
-	 */
 	@Override
 	public void testPeriodic() {
 	}
+	
+	
+	public void climb(double speed) { //Pos speed = up, neg speed = down
+		climbingOne.set(speed);
+		climbingTwo.set(-speed);
+	}
+	
+	public void grabber(double speed) {
+		grabber.set(speed);
+	}
+	
+	public void lift(double speed) {
+		lift.set(speed);
+	}
+	
+	public void drive(double XAxis, double YAxis, double ZAxis) {
+		m_robotDrive.driveCartesian(-YAxis, XAxis, -ZAxis);
+	}
+	
+	public void drive(double XAxis, double YAxis, double ZAxis, double gyro) {
+		m_robotDrive.driveCartesian(XAxis, YAxis, ZAxis, gyro);
+	}
+	
 }
