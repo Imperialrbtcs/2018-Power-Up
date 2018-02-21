@@ -7,7 +7,7 @@
 
 package org.usfirst.frc.team4286.robot;
 
-//import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.PigeonIMU;
 
 import edu.wpi.first.wpilibj.CounterBase;
 import edu.wpi.first.wpilibj.Encoder;
@@ -36,7 +36,7 @@ public class Robot extends IterativeRobot {
 	boolean LBump, RBump, A, B, X, Y;
 	SmartDashboard sd;
 
-	//PigeonIMU pidgey;
+	PigeonIMU pidgey;
 	
 	@Override
 	public void robotInit() {
@@ -91,9 +91,9 @@ public class Robot extends IterativeRobot {
 		
 			LBump = joystick.getRawButton(5); //4 count from 0
 			RBump = joystick.getRawButton(6);
-			B = joystick.getRawButton(2);
-			X = joystick.getRawButton(3);
-			A = joystick.getRawButton(1);
+			A = joystick.getRawButton(2);
+			B = joystick.getRawButton(3);
+			X = joystick.getRawButton(1);
 			Y = joystick.getRawButton(4);
 		
 		
@@ -101,12 +101,12 @@ public class Robot extends IterativeRobot {
 			else if (LBump) { climb(-.666); }
 			else { climb(0); }
 		
-			if (B) { grabber(.5); }
+			if (A) { grabber(.5); }
 			else if (X) { grabber(-.5); }
 			else { grabber(0); } 
 		
-			if (Y) { lift(.666); }
-			else if (A) { lift(-.666); }
+			if (B) { lift(.666); }
+			else if (Y) { lift(-.666); }
 			else { lift(0); }
 		
 			//driveCartesian: Vector r = <Y, X, Z>: But it drives inverse unless you do <X, Y, Z>
@@ -132,7 +132,7 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void drive(double XAxis, double YAxis, double ZAxis) {
-		m_robotDrive.driveCartesian(-YAxis, XAxis, -ZAxis);
+		m_robotDrive.driveCartesian(-YAxis, -XAxis, -ZAxis);
 	}
 	
 	public void drive(double XAxis, double YAxis, double ZAxis, double gyro) {
